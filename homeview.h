@@ -15,6 +15,18 @@ public:
     explicit HomeView(QWidget *parent = nullptr);
     ~HomeView();
 
+private slots:
+    void on_BtnRoom_clicked();
+
+    void on_BtnDoctor_clicked();
+
+    void on_BtnPatient_clicked();
+
+signals:
+    void goDepartmentView();
+    void goDoctorView();
+    void goPatientView();
+
 private:
     Ui::HomeView *ui;
 };

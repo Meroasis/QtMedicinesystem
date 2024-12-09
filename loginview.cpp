@@ -12,3 +12,13 @@ LoginView::~LoginView()
 {
     delete ui;
 }
+
+
+
+
+void LoginView::on_btnSignIn_clicked()
+{
+    emit loginSuccess();
+
+}
+

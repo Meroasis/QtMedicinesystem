@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>270</height>
+    <width>460</width>
+    <height>382</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>MasterView</string>
@@ -19,7 +25,11 @@
      <item>
       <widget class="QPushButton" name="BtnBack">
        <property name="text">
-        <string>返回</string>
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="img.qrc">
+         <normaloff>:/img/return.png</normaloff>:/img/return.png</iconset>
        </property>
       </widget>
      </item>
@@ -39,7 +49,7 @@
      <item>
       <widget class="QLabel" name="labelTile">
        <property name="text">
-        <string>TextLabel</string>
+        <string/>
        </property>
       </widget>
      </item>
@@ -59,7 +69,11 @@
      <item>
       <widget class="QPushButton" name="Btnlogout">
        <property name="text">
-        <string>注销</string>
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="img.qrc">
+         <normaloff>:/img/loginout.png</normaloff>:/img/loginout.png</iconset>
        </property>
       </widget>
      </item>
@@ -70,6 +84,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="img.qrc"/>
+ </resources>
  <connections/>
 </ui>

@@ -12,3 +12,9 @@ PatientView::~PatientView()
 {
     delete ui;
 }
+
+void PatientView::on_BtnAdd_clicked()
+{
+    emit goPatientEditView();
+}
+

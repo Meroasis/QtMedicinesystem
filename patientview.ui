@@ -6,20 +6,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>386</width>
-    <height>257</height>
+    <width>446</width>
+    <height>320</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>患者管理</string>
   </property>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>30</y>
-     <width>358</width>
-     <height>219</height>
+     <x>0</x>
+     <y>10</y>
+     <width>431</width>
+     <height>311</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">

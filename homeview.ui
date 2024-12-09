@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>欢迎</string>
   </property>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>30</x>
@@ -71,7 +71,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="BtnDoctor_2">
+       <widget class="QPushButton" name="BtnDoctor">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>

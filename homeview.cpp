@@ -12,3 +12,21 @@ HomeView::~HomeView()
 {
     delete ui;
 }
+
+void HomeView::on_BtnRoom_clicked()
+{
+    emit goDepartmentView();
+}
+
+
+void HomeView::on_BtnDoctor_clicked()
+{
+    emit goDoctorView();
+}
+
+
+void HomeView::on_BtnPatient_clicked()
+{
+    emit goPatientView();
+}
+
