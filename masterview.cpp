@@ -1,6 +1,6 @@
 #include "masterview.h"
 #include "ui_masterview.h"
-
+#include"idatabase.h"
 MasterView::MasterView(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::MasterView)
@@ -8,6 +8,8 @@ MasterView::MasterView(QWidget *parent)
     ui->setupUi(this);
     this->setWindowFlag(Qt::FramelessWindowHint);
     goLoginView();
+
+    IDatabase::getInstance();
 }
 
 MasterView::~MasterView()
