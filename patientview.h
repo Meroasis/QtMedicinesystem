@@ -17,8 +17,14 @@ public:
 
 private slots:
     void on_BtnAdd_clicked();
+    void on_BtnFind_clicked();
+
+    void on_BtnDelete_clicked();
+
+    void on_BtnChange_clicked();
+
 signals:
-    void goPatientEditView();
+    void goPatientEditView(int idx);
 
 private:
     Ui::PatientView *ui;
