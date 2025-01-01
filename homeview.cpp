@@ -7,6 +7,7 @@ HomeView::HomeView(const QString &username, QWidget *parent)
 {
     ui->setupUi(this);
     ui->Welcome->setText(tr("Welcome, %1").arg(username));
+    setupPermissions(username);
 }
 
 HomeView::~HomeView()
@@ -29,5 +30,24 @@ void HomeView::on_BtnDoctor_clicked()
 void HomeView::on_BtnPatient_clicked()
 {
     emit goPatientView();
+}
+
+
+void HomeView::on_BtnDrug_clicked()
+{
+
+}
+
+
+void HomeView::on_BtnLog_clicked()
+{
+
+}
+
+void HomeView::setupPermissions(const QString &username)
+{
+    bool hasManageDoctorsPermission = username.startsWith("ad");
+    // 根据权限级别启用或禁用按钮
+    ui->BtnDoctor->setEnabled(hasManageDoctorsPermission);
 }
 

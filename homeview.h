@@ -22,6 +22,10 @@ private slots:
 
     void on_BtnPatient_clicked();
 
+    void on_BtnDrug_clicked();
+
+    void on_BtnLog_clicked();
+
 signals:
     void goDepartmentView();
     void goDoctorView();
@@ -29,6 +33,7 @@ signals:
 
 private:
     Ui::HomeView *ui;
+    void setupPermissions(const QString &username);
 };
 
 #endif // HOMEVIEW_H
