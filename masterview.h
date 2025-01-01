@@ -8,6 +8,7 @@
 #include "patienteditview.h"
 #include "patientview.h"
 #include "homeview.h"
+#include "registered.h"
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MasterView;
@@ -22,6 +23,7 @@ public:
     MasterView(QWidget *parent = nullptr);
     ~MasterView();
 
+
 public slots:
     void goLoginView();
     void goWelcomView();
@@ -30,7 +32,8 @@ public slots:
     void goPatientView();
     void goPreviousView();
     void goPatientEditView(int rowNo);
-
+    void goRegisterView();     // 前往注册界面的方法
+    void handleSignUpClicked(); // 处理来自 LoginView 的注册请求
 
 private slots:
     void on_BtnBack_clicked();
@@ -39,9 +42,10 @@ private slots:
 
     void on_Btnlogout_clicked();
 
+
 private:
     void pushWidgetToStackView(QWidget *widget);
-
+    void setDoctorPermission(int permissionLevel);
     Ui::MasterView *ui;
 
     HomeView *welcomView;
@@ -50,7 +54,9 @@ private:
     RoomView *departmentView;
     LoginView *loginView;
     PatientEditView *patientEditView;
+    registered *registerView;
 
+    int doctorPermissionLevel; // 添加医生权限级别成员变量
 
 };
 #endif // MASTERVIEW_H

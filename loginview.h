@@ -14,13 +14,16 @@ class LoginView : public QWidget
 public:
     explicit LoginView(QWidget *parent = nullptr);
     ~LoginView();
-
+    QString getUsername() const;
 private slots:
     void on_btnSignIn_clicked();
+
+    void on_btnSignUp_clicked();
 
 signals:
     void loginSuccess();
     void loginFailed();
+    void signUpClicked();
 private:
     Ui::LoginView *ui;
 };

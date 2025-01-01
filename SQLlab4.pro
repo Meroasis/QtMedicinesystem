@@ -17,9 +17,11 @@ SOURCES += \
     masterview.cpp \
     patienteditview.cpp \
     patientview.cpp \
+    registered.cpp \
     roomview.cpp
 
 HEADERS += \
+    doctorinfo.h \
     doctorview.h \
     homeview.h \
     idatabase.h \
@@ -27,6 +29,7 @@ HEADERS += \
     masterview.h \
     patienteditview.h \
     patientview.h \
+    registered.h \
     roomview.h
 
 FORMS += \
@@ -36,6 +39,7 @@ FORMS += \
     masterview.ui \
     patienteditview.ui \
     patientview.ui \
+    registered.ui \
     roomview.ui
 
 # Default rules for deployment.
@@ -45,3 +49,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 RESOURCES += \
     img.qrc
+
+DISTFILES += \
+    img/backgound.jpg

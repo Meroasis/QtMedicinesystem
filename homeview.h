@@ -12,7 +12,7 @@ class HomeView : public QWidget
     Q_OBJECT
 
 public:
-    explicit HomeView(QWidget *parent = nullptr);
+    explicit HomeView(const QString &username,QWidget *parent = nullptr);
     ~HomeView();
 
 private slots:

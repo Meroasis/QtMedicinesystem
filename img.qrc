@@ -2,5 +2,6 @@
     <qresource prefix="/">
         <file>img/loginout.png</file>
         <file>img/return.png</file>
+        <file>img/backgound.jpg</file>
     </qresource>
 </RCC>

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>460</width>
-    <height>382</height>
+    <width>660</width>
+    <height>500</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -80,7 +80,11 @@
     </layout>
    </item>
    <item>
-    <widget class="QStackedWidget" name="stackedWidget"/>
+    <widget class="QStackedWidget" name="stackedWidget">
+     <property name="styleSheet">
+      <string notr="true">background-image: url(:/img/backgound.jpg);</string>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
