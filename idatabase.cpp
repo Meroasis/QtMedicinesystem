@@ -100,6 +100,66 @@ int IDatabase::addNewPatient()
     return curIndex.row();
 }
 
+QVector<DoctorInfo> IDatabase::getAllDoctors()
+{
+    QVector<DoctorInfo> doctors;
+    QSqlQuery query(database);
+
+    query.prepare("SELECT * FROM user WHERE permission_level > 0"); // 假设只有权限级别大于0的是医生
+
+    if (!query.exec()) {
+        qDebug() << "查询医生信息失败：" << query.lastError().text();
+        return doctors; // 返回空列表
+    }
+    while (query.next()) {
+        DoctorInfo doctor;
+        doctor.id = query.value("id").toInt();
+        doctor.certificateNumber = query.value("certificate_number").toString();
+        doctor.username = query.value("username").toString();
+        doctor.age = query.value("age").toInt();
+        doctor.sex = query.value("sex").toString();
+        doctor.name = query.value("name").toString();
+
+        doctors.append(doctor);
+    }
+
+    return doctors;
+}
+
+bool IDatabase::addDoctor(const DoctorInfo &doctor)
+{
+    QSqlQuery query(database);
+
+    // 查询最大 ID
+    query.exec("SELECT COALESCE(MAX(ID), 0) AS max_id FROM user");
+    if (!query.next()) {
+        qDebug() << "查询最大 ID 失败：" << query.lastError().text();
+        return false;
+    }
+
+    int newId = query.value("max_id").toInt() + 1;
+
+    // 插入新用户数据
+    query.prepare("INSERT INTO Doctor(ID, CERTIFICATE_NUMBER, AGE, SEX,NAME, DEPARTMENT_ID) "
+                  "VALUES (:ID, :CERTIFICATE_NUMBER, :AGE, :SEX, :NAME, :DEPARTMENT_ID)");
+    query.bindValue(":ID", newId);
+    query.bindValue(":CERTIFICATE_NUMBER", doctor.certificateNumber);
+    query.bindValue(":AGE", doctor.age);
+    query.bindValue(":SEX", doctor.sex);
+    query.bindValue(" :NAME", doctor.name);
+    query.bindValue(":DEPARTMENT_ID", "0000000");
+    if (!query.exec()) {
+        qDebug() << "插入医生数据失败：" << query.lastError().text();
+        return false;
+    }
+
+    qDebug() << "医生添加成功";
+    return true;
+}
+
+
+
+
 bool IDatabase::userRegister(const DoctorInfo &doctorInfo)
 {
     QSqlQuery query(database);
@@ -212,3 +272,5 @@ bool IDatabase::setUserPermissionLevel(const QString &userName, int permissionLe
 
     return true;
 }
+
+

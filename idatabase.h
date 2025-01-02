@@ -36,6 +36,12 @@ public:
     void reverPatientEidt();
     int addNewPatient();
 
+
+    QVector<DoctorInfo> getAllDoctors();
+    bool addDoctor(const DoctorInfo &doctor);
+    bool updateDoctor(int id, const DoctorInfo &doctor);
+    bool deleteDoctor(int id);
+
 private:
     explicit IDatabase(QObject *parent = nullptr);
     IDatabase(IDatabase const&)  = delete;
