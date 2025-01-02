@@ -16,7 +16,7 @@
   <widget class="QPushButton" name="btnDelete">
    <property name="geometry">
     <rect>
-     <x>460</x>
+     <x>140</x>
      <y>150</y>
      <width>75</width>
      <height>24</height>
@@ -29,7 +29,7 @@
   <widget class="QPushButton" name="btnUpdate">
    <property name="geometry">
     <rect>
-     <x>550</x>
+     <x>240</x>
      <y>150</y>
      <width>75</width>
      <height>24</height>
@@ -42,7 +42,7 @@
   <widget class="QPushButton" name="btnAdd">
    <property name="geometry">
     <rect>
-     <x>360</x>
+     <x>40</x>
      <y>150</y>
      <width>75</width>
      <height>24</height>
@@ -52,7 +52,7 @@
     <string>添加</string>
    </property>
   </widget>
-  <widget class="QTableWidget" name="tableDoctor">
+  <widget class="QTableWidget" name="tableDoctors">
    <property name="geometry">
     <rect>
      <x>10</x>
@@ -62,12 +62,12 @@
     </rect>
    </property>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>40</x>
      <y>20</y>
-     <width>215</width>
+     <width>231</width>
      <height>111</height>
     </rect>
    </property>
@@ -82,7 +82,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEdit"/>
+       <widget class="QLineEdit" name="lineEdit_Name"/>
       </item>
      </layout>
     </item>
@@ -96,14 +96,14 @@
        </widget>
       </item>
       <item>
-       <widget class="QRadioButton" name="radioButton">
+       <widget class="QRadioButton" name="radioButton_Male">
         <property name="text">
          <string>男</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QRadioButton" name="radioButton_2">
+       <widget class="QRadioButton" name="radioButton_Female">
         <property name="text">
          <string>女</string>
         </property>
@@ -121,7 +121,20 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEdit_2"/>
+       <widget class="QSpinBox" name="spinBox_Age">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>150</width>
+          <height>0</height>
+         </size>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>
@@ -135,9 +148,44 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEdit_3"/>
+       <widget class="QLineEdit" name="lineEdit_CertificateNumber"/>
       </item>
      </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QPushButton" name="pushButton">
+   <property name="geometry">
+    <rect>
+     <x>540</x>
+     <y>150</y>
+     <width>81</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>排序</string>
+   </property>
+  </widget>
+  <widget class="QWidget" name="">
+   <property name="geometry">
+    <rect>
+     <x>400</x>
+     <y>30</y>
+     <width>176</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_5">
+    <item>
+     <widget class="QLineEdit" name="lineEdit_Search"/>
+    </item>
+    <item>
+     <widget class="QPushButton" name="btnSearch">
+      <property name="text">
+       <string>查找</string>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>

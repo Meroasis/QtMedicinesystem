@@ -13,7 +13,8 @@ struct DoctorInfo {
     QString password; // 密码
     int permissionLevel; // 权限级别
     QDateTime createdTimestamp; // 创建时间戳
-    QString sex;//性别
+    enum Sex { MALE, FEMALE }; // 性别枚举
+    Sex sex; // 性别
 
 
     // 默认构造函数
@@ -21,10 +22,33 @@ struct DoctorInfo {
 
     // 构造函数，用于初始化所有成员变量
     DoctorInfo(int _id, const QString &_username, const QString &_name, int _age,
-               const QString &_certificateNumber, const QString &_password, int _permissionLevel, QString _sex)
+               const QString &_certificateNumber, const QString &_password, int _permissionLevel)
         : id(_id), username(_username), name(_name), age(_age),
         certificateNumber(_certificateNumber), password(_password),
-        permissionLevel(_permissionLevel),createdTimestamp(QDateTime::currentDateTime()), sex(_sex) {}
+        permissionLevel(_permissionLevel),createdTimestamp(QDateTime::currentDateTime()) {}
+
+    DoctorInfo(int _id , const QString &_name, Sex _sex , int _age , const QString &_certificateNumber )
+        : id(_id), name(_name), sex(_sex), age(_age), certificateNumber(_certificateNumber) {}
+
+    // 将字符串转换为 Sex 枚举
+    static Sex sexFromString(const QString &sexStr) {
+        if (sexStr.toLower() == "male") {
+            return MALE;
+        } else if (sexStr.toLower() == "female") {
+            return FEMALE;
+        } else {
+            qWarning() << "Unknown sex string:" << sexStr;
+            return MALE; // 默认返回 MALE
+        }
+    }
+
+    // 将 Sex 枚举转换为字符串
+    static QString sexToString(Sex sex) {
+        return sex == MALE ? "Male" : "Female";
+    }
+
 };
+
+
 
 #endif // DOCTORINFO_H

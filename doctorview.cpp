@@ -1,22 +1,20 @@
 #include "doctorview.h"
 #include "ui_doctorview.h"
-#include "doctorinfo.h"
 #include <QDebug>
-#include "idatabase.h"
+#include "doctorinfo.h"
 DoctorView::DoctorView(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::DoctorView)
-    , currentDoctorId(-1) // 初始化为无效 ID
 {
     ui->setupUi(this);
 
-    connect(ui->btnAdd, SIGNAL(clicked()), this, SLOT(on_btn_Add_clicked()));
+    connect(ui->btnAdd, SIGNAL(clicked()), this, SLOT(on_btnAdd_clicked));
     connect(ui->btnUpdate, SIGNAL(clicked()), this, SLOT(on_btn_Update_clicked()));
     connect(ui->btnDelete, SIGNAL(clicked()), this, SLOT(on_btn_Delete_clicked()));
-    connect(ui->tableDoctor, SIGNAL(itemSelectionChanged()), this, SLOT(on_table_Doctors_itemSelectionChanged()));
-
-    // 加载已有医生信息到表格
-    loadDoctors();
+    connect(ui->tableDoctors, SIGNAL(itemSelectionChanged()), this, SLOT(on_tableDoctors_itemSelectionChanged()));
+    connect(ui->tableDoctors->horizontalHeader(), SIGNAL(sectionClicked(int)), this, SLOT(on_tableDoctors_horizontalHeader_clicked(int)));
+    // 初始化表格
+    loadDoctorsToTable();
 }
 
 DoctorView::~DoctorView()
@@ -24,125 +22,86 @@ DoctorView::~DoctorView()
     delete ui;
 }
 
-void DoctorView::loadDoctors()
+void DoctorView::loadDoctorsToTable()
 {
-    ui->tableDoctor->setRowCount(0);
-    ui->tableDoctor->setColumnCount(6);
-    ui->tableDoctor->setHorizontalHeaderLabels({"ID", "Name", "Sex","Age", "Certificate", "Permission Level", "Created At"});
+    ui->tableDoctors->setRowCount(0);
+    ui->tableDoctors->setColumnCount(5);
+    ui->tableDoctors->setHorizontalHeaderLabels({"ID", "Name", "Sex", "Age", "Certificate Number"});
 
-    // 假设我们有一个 IDatabase 单例类来访问数据库
-    QVector<DoctorInfo> doctors = IDatabase::getInstance().getAllDoctors();
+    QVector<DoctorInfo> filteredDoctors = doctors;
+
+    if (!currentSearchTerm.isEmpty()) {
+        filteredDoctors.erase(std::remove_if(filteredDoctors.begin(), filteredDoctors.end(),
+                                             [this](const DoctorInfo &doctor) {
+                                                 return !doctor.name.contains(currentSearchTerm, Qt::CaseInsensitive) &&
+                                                        !doctor.certificateNumber.contains(currentSearchTerm, Qt::CaseInsensitive);
+                                             }),
+                              filteredDoctors.end());
+    }
+
     for (const auto &doctor : doctors) {
-        int row = ui->table_Doctors->rowCount();
-        ui->table_Doctors->insertRow(row);
-        ui->table_Doctors->setItem(row, 0, new QTableWidgetItem(QString::number(doctor.id)));
-        ui->table_Doctors->setItem(row, 1, new QTableWidgetItem(doctor.name));
-        ui->table_Doctors->setItem(row, 2, new QTableWidgetItem(QString::number(doctor.age)));
-        ui->table_Doctors->setItem(row, 3, new QTableWidgetItem(doctor.certificateNumber));
-        ui->table_Doctors->setItem(row, 4, new QTableWidgetItem(QString::number(doctor.permissionLevel)));
-        ui->table_Doctors->setItem(row, 5, new QTableWidgetItem(doctor.createdTimestamp.toString()));
+        int row = ui->tableDoctors->rowCount();
+        ui->tableDoctors->insertRow(row);
+        ui->tableDoctors->setItem(row, 0, new QTableWidgetItem(QString::number(doctor.id)));
+        ui->tableDoctors->setItem(row, 1, new QTableWidgetItem(doctor.name));
+        ui->tableDoctors->setItem(row, 2, new QTableWidgetItem(DoctorInfo::sexToString(doctor.sex)));
+        ui->tableDoctors->setItem(row, 3, new QTableWidgetItem(QString::number(doctor.age)));
+        ui->tableDoctors->setItem(row, 4, new QTableWidgetItem(doctor.certificateNumber));
     }
+    ui->tableDoctors->viewport()->update();
 }
 
-void DoctorView::addDoctor(const DoctorInfo &doctor)
+int DoctorView::getNextId()
 {
-    // 将新医生信息添加到数据库
-    IDatabase::getInstance().addDoctor(doctor);
-
-    // 更新表格显示
-    int row = ui->table_Doctors->rowCount();
-    ui->table_Doctors->insertRow(row);
-    ui->table_Doctors->setItem(row, 0, new QTableWidgetItem(QString::number(doctor.id)));
-    ui->table_Doctors->setItem(row, 1, new QTableWidgetItem(doctor.name));
-    ui->table_Doctors->setItem(row, 2, new QTableWidgetItem(QString::number(doctor.age)));
-    ui->table_Doctors->setItem(row, 3, new QTableWidgetItem(doctor.certificateNumber));
-    ui->table_Doctors->setItem(row, 4, new QTableWidgetItem(QString::number(doctor.permissionLevel)));
-    ui->table_Doctors->setItem(row, 5, new QTableWidgetItem(doctor.createdTimestamp.toString()));
-
-    qDebug() << "Doctor added:" << doctor.name;
-}
-
-void DoctorView::updateDoctor(int id, const DoctorInfo &doctor)
-{
-    if (id > 0) {
-        // 更新数据库中的医生信息
-        IDatabase::getInstance().updateDoctor(id, doctor);
-
-        // 更新表格显示
-        for (int row = 0; row < ui->table_Doctors->rowCount(); ++row) {
-            if (ui->table_Doctors->item(row, 0)->text().toInt() == id) {
-                ui->table_Doctors->item(row, 1)->setText(doctor.name);
-                ui->table_Doctors->item(row, 2)->setText(QString::number(doctor.age));
-                ui->table_Doctors->item(row, 3)->setText(doctor.certificateNumber);
-                ui->table_Doctors->item(row, 4)->setText(QString::number(doctor.permissionLevel));
-                break;
-            }
-        }
-
-        qDebug() << "Doctor updated:" << doctor.name;
+    if (doctors.isEmpty()) {
+        return 1;
     } else {
-        qWarning() << "Invalid doctor ID for updating.";
+        return doctors.last().id + 1;
     }
 }
 
-void DoctorView::deleteDoctor(int id)
+void DoctorView::searchDoctors(const QString &term)
 {
-    if (id > 0) {
-        // 从数据库中删除医生信息
-        IDatabase::getInstance().deleteDoctor(id);
-
-        // 更新表格显示
-        for (int row = 0; row < ui->table_Doctors->rowCount(); ++row) {
-            if (ui->table_Doctors->item(row, 0)->text().toInt() == id) {
-                ui->table_Doctors->removeRow(row);
-                break;
-            }
-        }
-
-        qDebug() << "Doctor deleted with ID:" << id;
-    } else {
-        qWarning() << "Invalid doctor ID for deleting.";
-    }
+    currentSearchTerm = term;
+    loadDoctorsToTable();
 }
 
-void DoctorView::on_btnAdd_clicked()
+void DoctorView::clearForm()
 {
-    QString name = ui->lineEdit_Name->text().trimmed();
-    QString specialty = ui->lineEdit_Specialty->text().trimmed();
-    QString contact = ui->lineEdit_Contact->text().trimmed();
-    int age = ui->spinBox_Age->value();
-    QString certificateNumber = ui->lineEdit_CertificateNumber->text().trimmed();
-    QString password = ui->lineEdit_Password->text().trimmed();
-    int permissionLevel = ui->comboBox_PermissionLevel->currentIndex(); // 假设有权限级别下拉框
-
-    if (!name.isEmpty() && !specialty.isEmpty() && !contact.isEmpty() && !certificateNumber.isEmpty() && !password.isEmpty()) {
-        DoctorInfo doctor(0, "", name, age, certificateNumber, password, permissionLevel);
-        addDoctor(doctor);
-        ui->lineEdit_Name->clear();
-        ui->lineEdit_Specialty->clear();
-        ui->lineEdit_Contact->clear();
-        ui->lineEdit_CertificateNumber->clear();
-        ui->lineEdit_Password->clear();
-    } else {
-        qWarning() << "Please fill in all required fields before adding a doctor.";
-    }
+    ui->lineEdit_Name->clear();
+    ui->spinBox_Age->setValue(0);
+    ui->lineEdit_CertificateNumber->clear();
+    ui->radioButton_Male->setChecked(true); // 默认选中 Male 按钮
 }
 
-void DoctorView::on_btnUpdate_clicked()
+void DoctorView::on_btn_Add_clicked()
 {
-    int id = getCurrentDoctorId();
-    if (id > 0) {
+    qDebug() << "Button Add clicked";
+}
+
+void DoctorView::on_btn_Update_clicked()
+{
+    if (currentDoctorId > 0) {
         QString name = ui->lineEdit_Name->text().trimmed();
-        QString specialty = ui->lineEdit_Specialty->text().trimmed();
-        QString contact = ui->lineEdit_Contact->text().trimmed();
         int age = ui->spinBox_Age->value();
         QString certificateNumber = ui->lineEdit_CertificateNumber->text().trimmed();
-        QString password = ui->lineEdit_Password->text().trimmed();
-        int permissionLevel = ui->comboBox_PermissionLevel->currentIndex(); // 假设有权限级别下拉框
+        DoctorInfo::Sex sex = (ui->radioButton_Male->isChecked()) ? DoctorInfo::MALE : DoctorInfo::FEMALE;
 
-        if (!name.isEmpty() && !specialty.isEmpty() && !contact.isEmpty() && !certificateNumber.isEmpty() && !password.isEmpty()) {
-            DoctorInfo doctor(id, "", name, age, certificateNumber, password, permissionLevel);
-            updateDoctor(id, doctor);
+        if (!name.isEmpty() && !certificateNumber.isEmpty()) {
+            for (auto &doctor : doctors) {
+                if (doctor.id == currentDoctorId) {
+                    doctor.name = name;
+                    doctor.age = age;
+                    doctor.certificateNumber = certificateNumber;
+                    doctor.sex = sex;
+                    break;
+                }
+            }
+
+            loadDoctorsToTable(); // 更新表格显示
+            clearForm(); // 清空表单字段
+
+            qDebug() << "Doctor updated:" << name;
         } else {
             qWarning() << "Please fill in all required fields before updating a doctor.";
         }
@@ -151,49 +110,93 @@ void DoctorView::on_btnUpdate_clicked()
     }
 }
 
-void DoctorView::on_btnDelete_clicked()
+void DoctorView::on_btn_Delete_clicked()
 {
-    int id = getCurrentDoctorId();
-    if (id > 0) {
-        deleteDoctor(id);
+    if (currentDoctorId > 0) {
+        doctors.erase(std::remove_if(doctors.begin(), doctors.end(),
+                                     [this](const DoctorInfo &doctor) { return doctor.id == currentDoctorId; }),
+                      doctors.end());
+
+        loadDoctorsToTable(); // 更新表格显示
+        clearForm(); // 清空表单字段
+
+        qDebug() << "医生删除成功" << currentDoctorId;
     } else {
         qWarning() << "Please select a doctor to delete.";
     }
 }
 
-void DoctorView::on_table_Doctors_itemSelectionChanged()
+void DoctorView::on_tableDoctors_itemSelectionChanged()
 {
-    QList<QTableWidgetItem*> selectedItems = ui->table_Doctors->selectedItems();
+    QList<QTableWidgetItem*> selectedItems = ui->tableDoctors->selectedItems();
     if (!selectedItems.isEmpty()) {
         int row = selectedItems.first()->row();
-        currentDoctorId = ui->table_Doctors->item(row, 0)->text().toInt();
+        currentDoctorId = ui->tableDoctors->item(row, 0)->text().toInt();
 
-        // 填充表单字段以供编辑
-        ui->lineEdit_Name->setText(ui->table_Doctors->item(row, 1)->text());
-        ui->spinBox_Age->setValue(ui->table_Doctors->item(row, 2)->text().toInt());
-        ui->lineEdit_CertificateNumber->setText(ui->table_Doctors->item(row, 3)->text());
-        ui->comboBox_PermissionLevel->setCurrentIndex(ui->table_Doctors->item(row, 4)->text().toInt());
+        ui->lineEdit_Name->setText(ui->tableDoctors->item(row, 1)->text());
+        ui->spinBox_Age->setValue(ui->tableDoctors->item(row, 3)->text().toInt());
+        ui->lineEdit_CertificateNumber->setText(ui->tableDoctors->item(row, 4)->text());
 
-        // 注意：这里没有填充密码和专业（specialty），因为它们不是表格的一部分。
-        // 如果需要编辑这些字段，应该在表格中添加相应的列或提供其他方式获取完整信息。
+        QString sexStr = ui->tableDoctors->item(row, 2)->text();
+        if (sexStr.toLower() == "male") {
+            ui->radioButton_Male->setChecked(true);
+        } else if (sexStr.toLower() == "female") {
+            ui->radioButton_Female->setChecked(true);
+        }
     } else {
         currentDoctorId = -1;
-        // 清空表单字段
-        ui->lineEdit_Name->clear();
-        ui->spinBox_Age->setValue(0);
-        ui->lineEdit_CertificateNumber->clear();
-        ui->comboBox_PermissionLevel->setCurrentIndex(0);
+        clearForm();
     }
 }
 
-int DoctorView::getCurrentDoctorId() const
+void DoctorView::on_btnAdd_clicked()
 {
-    return currentDoctorId;
+    QString name = ui->lineEdit_Name->text().trimmed();
+    int age = ui->spinBox_Age->value();
+    DoctorInfo::Sex sex = (ui->radioButton_Male->isChecked()) ? DoctorInfo::MALE : DoctorInfo::FEMALE;
+    QString certificateNumber = ui->lineEdit_CertificateNumber->text().trimmed();
+
+    if (!name.isEmpty() && !certificateNumber.isEmpty()) {
+        int id = getNextId();
+        DoctorInfo doctor(id, name, sex, age, certificateNumber);
+        doctors.append(doctor);
+
+        loadDoctorsToTable(); // 更新表格显示
+        clearForm(); // 清空表单字段
+
+        qDebug() << "Doctor added:" << name;
+    } else {
+        qWarning() << "请正确地添加医生信息";
+    }
 }
 
 
+void DoctorView::on_btnSearch_clicked()
+{
+    QString searchTerm = ui->lineEdit_Search->text().trimmed();
+    searchDoctors(searchTerm);
+}
 
+void DoctorView::on_tableDoctors_horizontalHeader_clicked(int logicalIndex)
+{
+    if (logicalIndex == sortColumn) {
+        sortAscending = !sortAscending;
+    } else {
+        sortColumn = logicalIndex;
+        sortAscending = true;
+    }
 
+    std::sort(doctors.begin(), doctors.end(), [this, logicalIndex](const DoctorInfo &a, const DoctorInfo &b) {
+        switch (logicalIndex) {
+        case 0: return sortAscending ? a.id < b.id : a.id > b.id;
+        case 1: return sortAscending ? a.name.compare(b.name, Qt::CaseInsensitive) < 0 : a.name.compare(b.name, Qt::CaseInsensitive) > 0;
+        case 2: return sortAscending ? a.sex < b.sex : a.sex > b.sex;
+        case 3: return sortAscending ? a.age < b.age : a.age > b.age;
+        case 4: return sortAscending ? a.certificateNumber.compare(b.certificateNumber, Qt::CaseInsensitive) < 0 : a.certificateNumber.compare(b.certificateNumber, Qt::CaseInsensitive) > 0;
+        default: return false;
+        }
+    });
 
-
+    loadDoctorsToTable();
+}
 
