@@ -10,6 +10,7 @@ CONFIG += c++17
 
 SOURCES += \
     doctorview.cpp \
+    highlightdelegate.cpp \
     homeview.cpp \
     idatabase.cpp \
     loginview.cpp \
@@ -23,6 +24,7 @@ SOURCES += \
 HEADERS += \
     doctorinfo.h \
     doctorview.h \
+    highlightdelegate.h \
     homeview.h \
     idatabase.h \
     loginview.h \

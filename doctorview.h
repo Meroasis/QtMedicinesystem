@@ -18,16 +18,17 @@ private slots:
     void on_btn_Delete_clicked();
     void on_tableDoctors_itemSelectionChanged();
 
-    // void on_btnAdd_clicked();
-
     // void on_btnDelete_clicked();
-
     // void on_btnUpdate_clicked();
-
     void on_btnAdd_clicked();
 
     void on_btnSearch_clicked();
     void on_tableDoctors_horizontalHeader_clicked(int logicalIndex);
+
+    void on_btnImport_clicked();
+
+
+    void on_btnExport_clicked();
 
 private:
     Ui::DoctorView *ui;
@@ -39,13 +40,19 @@ private:
     // int currentDoctorId; // 存储当前选中的医生 ID
     QVector<DoctorInfo> doctors;
     int currentDoctorId = -1;
-    void loadDoctorsToTable();
+    void loadDoctorsToTable(bool shouldSave);
     void clearForm();
     int getNextId();
     QString currentSearchTerm; // 当前搜索词
     void searchDoctors(const QString &term = "");
     bool sortAscending = true; // 排序方向，默认升序
-    int sortColumn = -1; // 排序列索引，默认不排序
-};
+    int sortColumn = -1;
+    QString highlightText(const QString &text, const QString &term);
+    void updateItemWithHighlight(QTableWidgetItem *item, const QString &html);
+    void saveDoctorsToDatabase(const QVector<DoctorInfo>& doctors);
+    void loadDoctorsFromDatabase();
+    // bool dataLoaded = false;
 
+
+};
 #endif // DOCTORVIEW_H

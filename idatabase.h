@@ -37,16 +37,18 @@ public:
     int addNewPatient();
 
 
-    // QVector<DoctorInfo> getAllDoctors();
-    // bool addDoctor(const DoctorInfo &doctor);
-    // bool updateDoctor(int id, const DoctorInfo &doctor);
-    // bool deleteDoctor(int id);
+    bool initConnection();
+    QVector<DoctorInfo> getAllDoctors();
+    bool addNewDoctor(const DoctorInfo &doctor);
+    bool updateDoctor(const DoctorInfo &doctor);
+    bool deleteDoctor(int id);
+    QSqlDatabase database;
 
 private:
     explicit IDatabase(QObject *parent = nullptr);
     IDatabase(IDatabase const&)  = delete;
     void operator=(IDatabase const&)  = delete;
-    QSqlDatabase database;
+
 
 
 

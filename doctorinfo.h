@@ -14,7 +14,7 @@ struct DoctorInfo {
     int permissionLevel; // 权限级别
     QDateTime createdTimestamp; // 创建时间戳
     enum Sex { MALE, FEMALE }; // 性别枚举
-    Sex sex; // 性别
+    Sex sex = MALE; // 性别
 
 
     // 默认构造函数

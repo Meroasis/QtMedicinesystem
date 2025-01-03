@@ -11,6 +11,7 @@ void IDatabase::initDatabase()
     }
     else
         qDebug()<<"open database is ok";
+
 }
 
 QString IDatabase::userLogin(QString userName, QString Mypassword)
@@ -46,6 +47,10 @@ IDatabase::IDatabase(QObject *parent)
 
 
 }
+
+
+
+
 
 bool IDatabase::initPatientModel()
 {
@@ -272,5 +277,63 @@ bool IDatabase::setUserPermissionLevel(const QString &userName, int permissionLe
 
     return true;
 }
+
+QVector<DoctorInfo> IDatabase::getAllDoctors()
+{
+    QVector<DoctorInfo> allDoctors;
+    QSqlQuery query("SELECT * FROM Doctor", database);
+    while (query.next()) {
+        DoctorInfo doctor;
+        doctor.id = query.value("id").toInt();
+        doctor.name = query.value("name").toString();
+        doctor.age = query.value("age").toInt();
+        doctor.sex = static_cast<DoctorInfo::Sex>(query.value("sex").toInt());
+        doctor.certificateNumber = query.value("certificate_number").toString();
+        allDoctors.append(doctor);
+    }
+    return allDoctors;
+}
+
+// 添加新医生
+bool IDatabase::addNewDoctor(const DoctorInfo &doctor)
+{
+    QSqlQuery query(database);
+    query.prepare("INSERT INTO Doctor (ID, CERTIFICATE_NUMBER, NAME, AGE, SEX, DEPARTMENT_ID)"
+                  " VALUES (:ID, :CERTIFICATE_NUMBER, :NAME, :AGE, :SEX, :DEPARTMENT_ID)");
+    query.bindValue(":ID", doctor.id);
+    query.bindValue(":CERTIFICATE_NUMBER", doctor.certificateNumber);
+    query.bindValue(":NAME", doctor.name);
+    query.bindValue(":AGE", doctor.age);
+    query.bindValue(":SEX", doctor.sex);
+    query.bindValue(":DEPARTMENT_ID", "0000");
+
+    return query.exec();
+}
+
+// 更新医生信息
+bool IDatabase::updateDoctor(const DoctorInfo &doctor)
+{
+    QSqlQuery query(database);
+    query.prepare("UPDATE Doctor SET name = ?, sex = ?, age = ?, certificate_number = ? WHERE id = ?");
+    query.addBindValue(doctor.name);
+    query.addBindValue(static_cast<int>(doctor.sex));
+    query.addBindValue(doctor.age);
+    query.addBindValue(doctor.certificateNumber);
+    query.addBindValue(doctor.id);
+
+    return query.exec();
+}
+
+// 删除医生信息
+bool IDatabase::deleteDoctor(int id)
+{
+    QSqlQuery query(database);
+    query.prepare("DELETE FROM Doctor WHERE id = ?");
+    query.addBindValue(id);
+
+    return query.exec();
+}
+
+
 
 
