@@ -15,6 +15,7 @@ struct DoctorInfo {
     QDateTime createdTimestamp; // 创建时间戳
     enum Sex { MALE, FEMALE }; // 性别枚举
     Sex sex = MALE; // 性别
+    QString department_ID = "0000";
 
 
     // 默认构造函数

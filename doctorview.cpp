@@ -217,7 +217,6 @@ void DoctorView::on_btn_Update_clicked()
         return;
     }
 
-    // 假设 doctors 是一个 QVector<DoctorInfo> 并且它是有序的或有快速查找机制
     auto it = std::find_if(doctors.begin(), doctors.end(), [this](const DoctorInfo& doctor) {
         return doctor.id == currentDoctorId;
     });
@@ -386,6 +385,7 @@ void DoctorView::on_tableDoctors_horizontalHeader_clicked(int logicalIndex)
 
 void DoctorView::on_btnImport_clicked()
 {
+
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), "", tr("CSV Files (*.csv)"));
     if (fileName.isEmpty()) {
         return; // 用户取消选择
@@ -399,7 +399,7 @@ void DoctorView::on_btnImport_clicked()
 
     // 设置 QTextStream 使用 UTF-8 编码
     QTextStream in(&file);
-    in.setEncoding(QStringConverter::Utf8); // 使用 setEncoding 设置编码为 UTF-8
+    in.setEncoding(QStringConverter::System); // 使用 setEncoding 设置编码为 UTF-8
 
     QVector<DoctorInfo> importedDoctors;
 
@@ -426,7 +426,6 @@ void DoctorView::on_btnImport_clicked()
     }
 
     file.close();
-
     // 插入导入的数据到数据库
     IDatabase &database = IDatabase::getInstance();
     foreach (const DoctorInfo &doctor, importedDoctors) {
@@ -436,7 +435,8 @@ void DoctorView::on_btnImport_clicked()
     }
 
     // 重新加载表格显示最新数据
-    loadDoctorsFromDatabase();
+    // loadDoctorsFromDatabase();
+
 }
 
 
@@ -444,6 +444,7 @@ void DoctorView::on_btnImport_clicked()
 
 void DoctorView::on_btnExport_clicked()
 {
+    qDebug() << "Export button clicked";
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr("CSV Files (*.csv)"));
     if (fileName.isEmpty()) {
         return; // 用户取消选择
@@ -457,8 +458,8 @@ void DoctorView::on_btnExport_clicked()
 
     // 设置 QTextStream 使用 UTF-8 编码，并写入 BOM
     QTextStream out(&file);
-    out.setEncoding(QStringConverter::Utf8); // 使用 setEncoding 设置编码为 UTF-8
-    out << "\uFEFF";
+    out.setEncoding(QStringConverter::System); // 使用 setEncoding 设置编码为 UTF-8
+    // out << "\uFEFF";
 
     out << "ID,Name,Sex,Age,Certificate Number\n";
 

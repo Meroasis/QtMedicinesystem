@@ -1,5 +1,9 @@
 #include "idatabase.h"
 #include <QUuid>
+#include "patienteditview.h"
+#include <QMessageBox>
+#include <QSqlError>
+#include <QSortFilterProxyModel>
 void IDatabase::initDatabase()
 {
     database = QSqlDatabase::addDatabase("QSQLITE");
@@ -55,13 +59,14 @@ IDatabase::IDatabase(QObject *parent)
 bool IDatabase::initPatientModel()
 {
     patientTabModel = new QSqlTableModel(this,database);
-    patientTabModel->setTable("patient");
+    patientTabModel->setTable("Patient");
     patientTabModel->setEditStrategy(
         QSqlTableModel::OnManualSubmit);//数据保存方式
-    patientTabModel->setSort(patientTabModel->fieldIndex("name"),Qt::AscendingOrder);//排序
+    patientTabModel->setSort(patientTabModel->fieldIndex("NAME"),Qt::AscendingOrder);//排序
     if(!(patientTabModel->select()))//查询数据
         return false;
     thePatientSelection = new QItemSelectionModel(patientTabModel);
+
     return true;
 }
 
@@ -73,15 +78,55 @@ bool IDatabase::searchPatient(QString filter)
     return patientTabModel->select();
 }
 
-bool IDatabase::deleteCurrentPatient()
+bool IDatabase::deleteCurrentPatient(QItemSelectionModel *selectionModel)
 {
-    QModelIndex curIndex = thePatientSelection->currentIndex();
-    patientTabModel->removeRow(curIndex.row());
-    patientTabModel->submitAll();
+    if (!selectionModel) {
+        QMessageBox::critical(nullptr, tr("Error"), tr("No selection model available."));
+        return false;
+    }
+
+    // 获取当前选中的源模型索引
+    QModelIndex curIndex = selectionModel->currentIndex();
+    if (!curIndex.isValid()) {
+        QMessageBox::information(nullptr, tr("Information"), tr("Please select a patient to delete."));
+        return false;
+    }
+
+    // 确认删除操作
+    int ret = QMessageBox::question(nullptr, tr("Confirm Delete"), tr("Are you sure you want to delete this patient?"),
+                                    QMessageBox::Yes | QMessageBox::No);
+    if (ret != QMessageBox::Yes) {
+        return false;
+    }
+
+    // 尝试移除行
+    bool success = patientTabModel->removeRow(curIndex.row());
+    if (!success) {
+        QMessageBox::critical(nullptr, tr("Error"), tr("Failed to remove row: ") + patientTabModel->lastError().text());
+        return false;
+    }
+
+    // 提交所有更改到数据库
+    success = patientTabModel->submitAll();
+    if (!success) {
+        QMessageBox::critical(nullptr, tr("Error"), tr("Failed to submit changes: ") + patientTabModel->lastError().text());
+        patientTabModel->revertAll(); // 回滚更改
+        return false;
+    }
+
+    // 刷新模型数据
     patientTabModel->select();
 
-}
+    // 更新选择模型（如果需要）
+    int newRow = qMin(curIndex.row(), patientTabModel->rowCount() - 1);
+    if (newRow >= 0 && newRow < patientTabModel->rowCount()) {
+        selectionModel->setCurrentIndex(patientTabModel->index(newRow, curIndex.column()), QItemSelectionModel::ClearAndSelect);
+    } else {
+        selectionModel->clearSelection();
+    }
 
+    return true;
+}
 bool IDatabase::submitPatientEdit()
 {
     return patientTabModel->submitAll();
@@ -94,73 +139,41 @@ void IDatabase::reverPatientEidt()
 
 int IDatabase::addNewPatient()
 {
-    patientTabModel->insertRow(patientTabModel->rowCount(),
-                                QModelIndex());//在末尾添加一个记录
-    QModelIndex curIndex = patientTabModel->index(patientTabModel->rowCount() - 1,1);//创建最后一行的ModelIndex
-    int curRecNo =curIndex.row();
-    QSqlRecord curRec=patientTabModel->record(curRecNo);//获取当前记录
-    curRec.setValue("CREATEDTIMESTAMP", QDateTime::currentDateTime().toString("yyyy-MM-dd"));
-    curRec.setValue("ID", QUuid::createUuid().toString(QUuid::WithoutBraces));
-    patientTabModel->setRecord(curRecNo,curRec);
-    return curIndex.row();
+    bool success = patientTabModel->insertRow(patientTabModel->rowCount());
+    if (!success) {
+        qWarning() << "Failed to insert a new row into the patient table.";
+        return -1;
+    }
+    // QModelIndex curIndex = patientTabModel->index(patientTabModel->rowCount() - 1,1);//创建最后一行的ModelIndex
+    // int curRecNo =curIndex.row();
+    // QSqlRecord curRec=patientTabModel->record(curRecNo);//获取当前记录
+    // 获取最后一行的索引
+    int curRecNo = patientTabModel->rowCount() - 1;
+    // 获取当前记录
+    // QSqlRecord curRec = patientTabModel->record(curRecNo);
+
+    // 设置 CREATEDTIMESTAMP 字段值为当前日期时间
+    QModelIndex idxCreatedTimestamp = patientTabModel->index(curRecNo, patientTabModel->fieldIndex("CREATEDTIMESTAMP"));
+    patientTabModel->setData(idxCreatedTimestamp, QDateTime::currentDateTime().toString("yyyy/MM/dd"));
+
+    // 设置 ID 字段值为新生成的 UUID
+    QModelIndex idxId = patientTabModel->index(curRecNo, patientTabModel->fieldIndex("ID"));
+    patientTabModel->setData(idxId, QUuid::createUuid().toString(QUuid::WithoutBraces));
+    // 设置其他字段为空字符串或默认值
+    patientTabModel->setData(patientTabModel->index(curRecNo, patientTabModel->fieldIndex("NAME")), "");
+    patientTabModel->setData(patientTabModel->index(curRecNo, patientTabModel->fieldIndex("SEX")), "");
+    patientTabModel->setData(patientTabModel->index(curRecNo, patientTabModel->fieldIndex("HEIGHT")), 0);
+    patientTabModel->setData(patientTabModel->index(curRecNo, patientTabModel->fieldIndex("WEIGHT")), 0);
+    patientTabModel->setData(patientTabModel->index(curRecNo, patientTabModel->fieldIndex("MOBILEPHONE")), "");
+    patientTabModel->setData(patientTabModel->index(curRecNo, patientTabModel->fieldIndex("ID_CARD")), "");
+    patientTabModel->setData(patientTabModel->index(curRecNo, patientTabModel->fieldIndex("AGE")), "");
+
+    // patientTabModel->setRecord(curRecNo,curRec);
+    // patientTabModel->submitAll();
+    return curRecNo;
 }
 
-// QVector<DoctorInfo> IDatabase::getAllDoctors()
-// {
-//     QVector<DoctorInfo> doctors;
-//     QSqlQuery query(database);
 
-//     query.prepare("SELECT * FROM user WHERE permission_level > 0"); // 假设只有权限级别大于0的是医生
-
-//     if (!query.exec()) {
-//         qDebug() << "查询医生信息失败：" << query.lastError().text();
-//         return doctors; // 返回空列表
-//     }
-//     while (query.next()) {
-//         DoctorInfo doctor;
-//         doctor.id = query.value("id").toInt();
-//         doctor.certificateNumber = query.value("certificate_number").toString();
-//         doctor.username = query.value("username").toString();
-//         doctor.age = query.value("age").toInt();
-//         DoctorInfo::Sex sex = DoctorInfo::sexFromString(query.value("sex").toString());
-//         doctor.name = query.value("name").toString();
-
-//         doctors.append(doctor);
-//     }
-
-//     return doctors;
-// }
-
-// bool IDatabase::addDoctor(const DoctorInfo &doctor)
-// {
-//     QSqlQuery query(database);
-
-//     // 查询最大 ID
-//     query.exec("SELECT COALESCE(MAX(ID), 0) AS max_id FROM user");
-//     if (!query.next()) {
-//         qDebug() << "查询最大 ID 失败：" << query.lastError().text();
-//         return false;
-//     }
-
-//     int newId = query.value("max_id").toInt() + 1;
-
-//     // 插入新用户数据
-//     query.prepare("INSERT INTO Doctor(ID, CERTIFICATE_NUMBER, AGE, SEX,NAME, DEPARTMENT_ID) "
-//                   "VALUES (:ID, :CERTIFICATE_NUMBER, :AGE, :SEX, :NAME, :DEPARTMENT_ID)");
-//     query.bindValue(":ID", newId);
-//     query.bindValue(":CERTIFICATE_NUMBER", doctor.certificateNumber);
-//     query.bindValue(":AGE", doctor.age);
-//     query.bindValue(":SEX", doctor.sex);
-//     query.bindValue(" :NAME", doctor.name);
-//     query.bindValue(":DEPARTMENT_ID", "0000000");
-//     if (!query.exec()) {
-//         qDebug() << "插入医生数据失败：" << query.lastError().text();
-//         return false;
-//     }
-
-//     qDebug() << "医生添加成功";
-//     return true;
-// }
 
 
 

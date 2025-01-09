@@ -14,6 +14,7 @@ class PatientEditView : public QWidget
 public:
     explicit PatientEditView(QWidget *parent = nullptr,int rowNo = 0);
     ~PatientEditView();
+    int calculateAge();
 
 private slots:
     void on_pushButton_clicked();
@@ -23,10 +24,10 @@ private slots:
 private:
     Ui::PatientEditView *ui;
     QDataWidgetMapper  *dataMapper;//数据映射
+    void updateAge();
+    int calculateAge(const QDate &birthDate);
 signals:
     void goPreviousView();
-
-
 };
 
 #endif // PATIENTEDITVIEW_H

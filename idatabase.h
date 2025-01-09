@@ -5,6 +5,7 @@
 #include <Qtsql>
 #include <QSqlDatabase>
 #include <QDataWidgetMapper>
+#include "patienteditview.h"
 
 #include "doctorinfo.h"
 class IDatabase : public QObject
@@ -35,7 +36,7 @@ public:
     bool submitPatientEdit();
     void reverPatientEidt();
     int addNewPatient();
-
+    bool deleteCurrentPatient(QItemSelectionModel *selectionModel);
 
     bool initConnection();
     QVector<DoctorInfo> getAllDoctors();
