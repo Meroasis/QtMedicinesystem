@@ -9,6 +9,8 @@
 #include "patientview.h"
 #include "homeview.h"
 #include "registered.h"
+#include "medicineview.h"
+#include "medicineeditview.h"
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MasterView;
@@ -31,7 +33,9 @@ public slots:
     void goDepartmentView();
     void goPatientView();
     void goPreviousView();
+    void goMedicineView();
     void goPatientEditView(int rowNo);
+    void goMedicineEditView(int rowNo);
     void goRegisterView();     // 前往注册界面的方法
     void handleSignUpClicked(); // 处理来自 LoginView 的注册请求
 
@@ -55,7 +59,8 @@ private:
     LoginView *loginView;
     PatientEditView *patientEditView;
     registered *registerView;
-
+    MedicineView *medicineView;
+    Medicineeditview *medicineEditview;
     int doctorPermissionLevel; // 添加医生权限级别成员变量
 
 };

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>PatientView</class>
- <widget class="QWidget" name="PatientView">
+ <class>MedicineView</class>
+ <widget class="QWidget" name="MedicineView">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,9 +11,35 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>患者管理</string>
+   <string>Form</string>
   </property>
   <widget class="QWidget" name="layoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>158</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <item>
+     <widget class="QPushButton" name="actionImportCSV">
+      <property name="text">
+       <string>批量导入</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="actionExportCSV">
+      <property name="text">
+       <string>批量导出</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="layoutWidget_2">
    <property name="geometry">
     <rect>
      <x>0</x>
@@ -63,33 +89,7 @@
      </layout>
     </item>
     <item>
-     <widget class="QTableView" name="tableView"/>
-    </item>
-   </layout>
-  </widget>
-  <widget class="QWidget" name="layoutWidget">
-   <property name="geometry">
-    <rect>
-     <x>480</x>
-     <y>10</y>
-     <width>158</width>
-     <height>26</height>
-    </rect>
-   </property>
-   <layout class="QHBoxLayout" name="horizontalLayout_2">
-    <item>
-     <widget class="QPushButton" name="actionImportCSV">
-      <property name="text">
-       <string>批量导入</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="actionExportCSV">
-      <property name="text">
-       <string>批量导出</string>
-      </property>
-     </widget>
+     <widget class="QTableView" name="myTableView"/>
     </item>
    </layout>
   </widget>

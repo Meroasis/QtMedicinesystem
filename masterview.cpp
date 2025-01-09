@@ -50,6 +50,7 @@ void MasterView::goWelcomView()
     pushWidgetToStackView(homeView); // 将 HomeView 添加到堆栈
     connect(homeView,SIGNAL(goDoctorView()),this,SLOT(goDoctorView()));
     connect(homeView,SIGNAL(goPatientView()),this,SLOT(goPatientView()));
+    connect(homeView,SIGNAL(goMedicineView()),this,SLOT(goMedicineView()));
     connect(homeView,SIGNAL(goDepartmentView()),this,SLOT(goDepartmentView()));//连接到home而不是welcome
     // 获取当前登录用户的权限级别
     DoctorInfo doctorInfo = IDatabase::getInstance().getUserInfo(username);
@@ -76,11 +77,25 @@ void MasterView::goPatientView()
     connect(patientView,SIGNAL(goPatientEditView(int)),this,SLOT(goPatientEditView(int)));
 }
 
+void MasterView::goMedicineView()
+{
+    medicineView = new MedicineView(this);
+    pushWidgetToStackView(medicineView);
+    connect(medicineView,SIGNAL(goMedicineEditView(int)),this,SLOT(goMedicineEditView(int)));
+}
+
 void MasterView::goPatientEditView(int rowNo)
 {
     patientEditView = new PatientEditView(this,rowNo);
     pushWidgetToStackView( patientEditView);
      connect(patientEditView,SIGNAL(goPreviousView()),this,SLOT(goPreviousView()));
+}
+
+void MasterView::goMedicineEditView(int rowNo)
+{
+    medicineEditview = new Medicineeditview(this,rowNo);
+    pushWidgetToStackView(medicineEditview);
+    connect(medicineEditview,SIGNAL(goPreviousView()),this,SLOT(goPreviousView()));
 }
 
 
@@ -114,6 +129,8 @@ void MasterView::goPreviousView()
 
     }
 }
+
+
 
 
 

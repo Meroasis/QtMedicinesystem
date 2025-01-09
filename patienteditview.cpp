@@ -83,7 +83,5 @@ int PatientEditView::calculateAge(const QDate &birthDate)
     return age;
 }
 
-// QString PatientEditView::getFormattedBirthday(){
-//     return ui->dbDateEditDOB->date().toString("yyyy-MM-dd");
-// }
+
 

@@ -35,7 +35,7 @@ void HomeView::on_BtnPatient_clicked()
 
 void HomeView::on_BtnDrug_clicked()
 {
-
+    emit goMedicineView();
 }
 
 

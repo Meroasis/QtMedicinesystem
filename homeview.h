@@ -30,6 +30,7 @@ signals:
     void goDepartmentView();
     void goDoctorView();
     void goPatientView();
+    void goMedicineView();
 
 private:
     Ui::HomeView *ui;

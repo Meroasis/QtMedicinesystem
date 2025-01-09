@@ -347,6 +347,134 @@ bool IDatabase::deleteDoctor(int id)
     return query.exec();
 }
 
+bool IDatabase::initMedicineModel()
+{
+    if (medicineModel) {
+        delete medicineModel;
+        medicineModel = nullptr;
+    }
+
+    medicineModel = new QSqlTableModel(this, database);
+    medicineModel->setTable("medicines");
+    medicineModel->setEditStrategy(QSqlTableModel::OnManualSubmit); // 数据保存方式
+    medicineModel->setSort(medicineModel->fieldIndex("NAME"), Qt::AscendingOrder); // 排序
+
+    if (!medicineModel->select()) { // 查询数据
+        qCritical() << "Failed to select from medicines table:" << medicineModel->lastError().text();
+        return false;
+    }
+
+    if (theMedicineSelection) {
+        theMedicineSelection.reset();
+    }
+    theMedicineSelection.reset(new QItemSelectionModel(medicineModel));
+
+    return true;
+}
+
+bool IDatabase::searchMedicine(QString filter)
+{
+    if (!medicineModel) {
+        qWarning() << "Medicine model is not initialized.";
+        return false;
+    }
+
+    medicineModel->setFilter(filter);
+    return medicineModel->select();
+}
+
+int IDatabase::addMedicine()
+{
+    if (!medicineModel) {
+        qWarning() << "Medicine model is not initialized.";
+        return -1;
+    }
+
+    bool success = medicineModel->insertRow(medicineModel->rowCount());
+    if (!success) {
+        qWarning() << "Failed to insert a new row into the medicines table.";
+        return -1;
+    }
+
+    int curRecNo = medicineModel->rowCount() - 1;
+
+    // 设置 CREATED_TIMESTAMP 字段值为当前日期时间
+    QModelIndex idxCreatedTimestamp = medicineModel->index(curRecNo, medicineModel->fieldIndex("CREATED_TIMESTAMP"));
+    medicineModel->setData(idxCreatedTimestamp, QDateTime::currentDateTime());
+
+    // 设置 ID 字段值为新生成的 UUID
+    QModelIndex idxId = medicineModel->index(curRecNo, medicineModel->fieldIndex("ID"));
+    medicineModel->setData(idxId, QUuid::createUuid().toString(QUuid::WithoutBraces));
+
+    // 设置其他字段为空字符串或默认值
+    medicineModel->setData(medicineModel->index(curRecNo, medicineModel->fieldIndex("NAME")), "");
+    medicineModel->setData(medicineModel->index(curRecNo, medicineModel->fieldIndex("DOSAGE")), "");
+    medicineModel->setData(medicineModel->index(curRecNo, medicineModel->fieldIndex("STOCK_QUANTITY")), 0);
+
+    // success = medicineModel->submitAll();
+    // if (!success) {
+    //     qCritical() << "Failed to submit changes:" << medicineModel->lastError().text();
+    //     medicineModel->revertAll(); // 回滚更改
+    //     return -1;
+    // }
+
+    return curRecNo;
+}
+
+bool IDatabase::deleteMedicine(QItemSelectionModel *selectionModel)
+{
+    if (!medicineModel || !selectionModel || !selectionModel->hasSelection()) {
+        qWarning() << "Invalid parameters for delete operation.";
+        return false;
+    }
+
+    QModelIndex curIndex = selectionModel->currentIndex();
+    if (!curIndex.isValid()) {
+        qWarning() << "Invalid current index in selection model.";
+        return false;
+    }
+
+    bool success = medicineModel->removeRow(curIndex.row());
+    if (!success) {
+        qCritical() << "Failed to remove row: " << medicineModel->lastError().text();
+        return false;
+    }
+
+    success = medicineModel->submitAll();
+    if (!success) {
+        qCritical() << "Failed to submit changes: " << medicineModel->lastError().text();
+        medicineModel->revertAll(); // 回滚更改
+        return false;
+    }
+
+    medicineModel->select();
+
+    int newRow = qMin(curIndex.row(), medicineModel->rowCount() - 1);
+    if (newRow >= 0 && newRow < medicineModel->rowCount()) {
+        selectionModel->setCurrentIndex(medicineModel->index(newRow, curIndex.column()), QItemSelectionModel::ClearAndSelect);
+    } else {
+        selectionModel->clearSelection();
+    }
+
+    return true;
+}
+
+
+bool IDatabase::submitMedicineEdit()
+{
+    return medicineModel->submitAll();
+}
+
+void IDatabase::reverMedicineEidt()
+{
+    medicineModel->revertAll();
+}
+
+
+
+
+
+
 
 
 
