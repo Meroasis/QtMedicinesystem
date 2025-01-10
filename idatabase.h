@@ -14,6 +14,8 @@ class IDatabase : public QObject
 public:
     static IDatabase& getInstance()
     {
+        static QMutex mutex;
+        QMutexLocker locker(&mutex);
         static IDatabase instance; // Guaranteed to be destroyed.
             // Instantiated on first use.
         return instance;
@@ -25,7 +27,7 @@ public:
     QItemSelectionModel *thePatientSelection;//选择模型
     QDataWidgetMapper  *dataMapper;//数据映射
 
-
+    QSqlDatabase getDatabase();
 
     int getPermissionLevelByUsernamePrefix(const QString &userName);
     bool setUserPermissionLevel(const QString &userName, int permissionLevel);//0 表示普通医生。 1 表示具有管理其他医生权限的医生
@@ -48,7 +50,6 @@ public:
     bool deleteDoctor(int id);
     QSqlDatabase database;
 
-
     //药品
     QSqlTableModel *medicineModel; //药品模型
     std::unique_ptr<QItemSelectionModel> theMedicineSelection;//药品选择模型
@@ -62,6 +63,13 @@ public:
     bool importMedicines(const QString &fileName);
     bool exportMedicines(const QString &fileName);
 
+    //管理
+    bool initDoctorModel();
+    QSqlTableModel *doctorModel; //医生模型
+    std::unique_ptr<QItemSelectionModel> *theDoctorSelection;//医生选择模型
+    void initDatabase();
+
+
 
 private:
     explicit IDatabase(QObject *parent = nullptr);
@@ -69,7 +77,7 @@ private:
     void operator=(IDatabase const&)  = delete;
 
 
-    void initDatabase();
+
 
 
 signals:

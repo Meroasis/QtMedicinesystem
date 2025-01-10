@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QDataWidgetMapper>
+#include <QItemSelectionModel>
 namespace Ui {
 class Medicineeditview;
 }
@@ -23,6 +24,7 @@ private slots:
 private:
     Ui::Medicineeditview *ui;
     QDataWidgetMapper  *dataMapper;//数据映射
+
 signals:
     void goPreviousView();
 

@@ -41,7 +41,7 @@ void HomeView::on_BtnDrug_clicked()
 
 void HomeView::on_BtnLog_clicked()
 {
-
+    emit goAppointmentsView();
 }
 
 void HomeView::setupPermissions(const QString &username)

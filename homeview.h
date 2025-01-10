@@ -31,6 +31,7 @@ signals:
     void goDoctorView();
     void goPatientView();
     void goMedicineView();
+    void goAppointmentsView();
 
 private:
     Ui::HomeView *ui;

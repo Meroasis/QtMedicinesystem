@@ -5,6 +5,7 @@
 #include <QSqlTableModel>
 #include <QSortFilterProxyModel>
 #include <QDataWidgetMapper>
+#include <QItemSelectionModel>
 namespace Ui {
 class MedicineView;
 }
@@ -32,6 +33,7 @@ signals:
 private:
     Ui::MedicineView *ui;
     QSortFilterProxyModel *proxyModel;
+    QItemSelectionModel *selectionModel;
     int sortColumn = 0;
     bool sortAscending = true;
 public slots:

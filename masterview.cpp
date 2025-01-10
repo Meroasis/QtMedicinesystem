@@ -51,6 +51,7 @@ void MasterView::goWelcomView()
     connect(homeView,SIGNAL(goDoctorView()),this,SLOT(goDoctorView()));
     connect(homeView,SIGNAL(goPatientView()),this,SLOT(goPatientView()));
     connect(homeView,SIGNAL(goMedicineView()),this,SLOT(goMedicineView()));
+    connect(homeView,SIGNAL(goAppointmentsView()),this,SLOT(goAppointmentsView()));
     connect(homeView,SIGNAL(goDepartmentView()),this,SLOT(goDepartmentView()));//连接到home而不是welcome
     // 获取当前登录用户的权限级别
     DoctorInfo doctorInfo = IDatabase::getInstance().getUserInfo(username);
@@ -83,6 +84,15 @@ void MasterView::goMedicineView()
     pushWidgetToStackView(medicineView);
     connect(medicineView,SIGNAL(goMedicineEditView(int)),this,SLOT(goMedicineEditView(int)));
 }
+
+void MasterView::goAppointmentsView()
+{
+    appontmentsView =new AppointmentsView(this);
+    pushWidgetToStackView(appontmentsView);
+
+}
+
+
 
 void MasterView::goPatientEditView(int rowNo)
 {

@@ -33,6 +33,8 @@ public:
 MedicineView::MedicineView(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::MedicineView)
+    , proxyModel(nullptr)
+    , selectionModel(nullptr)
 {
     ui->setupUi(this);
 
@@ -57,7 +59,7 @@ MedicineView::MedicineView(QWidget *parent)
     // 创建 QSortFilterProxyModel 并设置源模型
     proxyModel = new QSortFilterProxyModel(this);
     proxyModel->setSourceModel(medicineModel);
-
+    selectionModel = new QItemSelectionModel(proxyModel, this);
 
 
     // 显式连接信号和槽
@@ -74,11 +76,10 @@ MedicineView::MedicineView(QWidget *parent)
 
     // 显式连接信号和槽
     connect(ui->myTableView->horizontalHeader(), &QHeaderView::sectionClicked,
-            this, &MedicineView::handleHorizontalHeaderSectionClicked);
+            this, &MedicineView::handleHorizontalHeaderSectionClicked, Qt::UniqueConnection);
 
-    // 连接选择变化信号以更新按钮状态
     connect(ui->myTableView->selectionModel(), &QItemSelectionModel::selectionChanged,
-            this, &MedicineView::updateDeleteButtonState);
+            this, &MedicineView::updateDeleteButtonState, Qt::UniqueConnection);
     // 初始禁用删除按钮
     updateDeleteButtonState();
 

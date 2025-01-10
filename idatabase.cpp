@@ -70,6 +70,11 @@ bool IDatabase::initPatientModel()
     return true;
 }
 
+QSqlDatabase IDatabase::getDatabase()
+{
+    return database;
+}
+
 
 
 bool IDatabase::searchPatient(QString filter)
@@ -468,6 +473,31 @@ bool IDatabase::submitMedicineEdit()
 void IDatabase::reverMedicineEidt()
 {
     medicineModel->revertAll();
+}
+
+bool IDatabase::initDoctorModel()
+{
+    if (doctorModel) {
+        delete doctorModel;
+        doctorModel = nullptr;
+    }
+
+    doctorModel = new QSqlTableModel(this, database);
+    doctorModel->setTable("Doctors");
+    doctorModel->setEditStrategy(QSqlTableModel::OnManualSubmit); // 数据保存方式
+    doctorModel->setSort(doctorModel->fieldIndex("NAME"), Qt::AscendingOrder); // 排序
+
+    if (!doctorModel->select()) { // 查询数据
+        qCritical() << "Failed to select from Doctors table:" << doctorModel->lastError().text();
+        return false;
+    }
+
+    if (theDoctorSelection) {
+        theDoctorSelection->reset();
+    }
+    theDoctorSelection->reset(new QItemSelectionModel(doctorModel));
+
+    return true;
 }
 
 

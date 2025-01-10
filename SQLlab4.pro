@@ -10,6 +10,7 @@ CONFIG += c++17
 
 SOURCES += \
     StockQuantityDelegate.cpp \
+    appointmentsview.cpp \
     doctorview.cpp \
     highlightdelegate.cpp \
     homeview.cpp \
@@ -25,6 +26,7 @@ SOURCES += \
     roomview.cpp
 
 HEADERS += \
+    appointmentsview.h \
     doctorinfo.h \
     doctorview.h \
     highlightdelegate.h \
@@ -40,6 +42,7 @@ HEADERS += \
     roomview.h
 
 FORMS += \
+    appointmentsview.ui \
     doctorview.ui \
     homeview.ui \
     loginview.ui \
